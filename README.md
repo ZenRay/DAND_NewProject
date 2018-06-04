@@ -81,3 +81,8 @@
 要使用 `Python` 回答这些问题，你需要编写 `Python` 脚本。为了帮助你完成此项目，我们以可下载 `.py` 文件的形式提供了一个模板，其中包含辅助代码和注释。
 
 你还需要数据集文件，即 `CSV` 文件；转到下一页可以详细了解你将编写的代码和数据。
+
+**文件列表说明**
+
+1. [OriginalProject](./BasicP1_BicycleShare/OriginalProject) 该文件夹是课程中要求的原始项目
+2. [AugmentProject](./BasicP1_BicycleShare/AugmentProject) 该文件夹是用于拓展的项目
