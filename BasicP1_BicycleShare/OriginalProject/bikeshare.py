@@ -14,6 +14,18 @@ daies = ["monday", "tuesday", "wednesday",
          "thursday", "friday", "saturday", "sunday"]
 
 
+def get_option(input_hint, error_hint, conditions, extra_condition=None):
+    # get the specify data
+    result = input(input_hint).lower()
+    while True:
+        if result in conditions:
+            break
+        elif (extra_condition in ["month", "day"]) and result == "all":
+            break
+        else:
+            result = input(error_hint).lower()
+    return result
+
 def get_filters():
     """
     Asks user to specify a city, month, and day to analyze.
@@ -23,33 +35,48 @@ def get_filters():
         (str) month - name of the month to filter by, or "all" to apply no month filter
         (str) day - name of the day of week to filter by, or "all" to apply no day filter
     """
+    # information about hint and error
+    city_hint = "Would you like to see data for Chicago, New York, or Washington?\n"
+    city_error = "Invalid city, please choose again:"
+
+    month_hint = "Which month? January, February, March, April, May, or June?\n"
+    month_error = "Invalid month, please choose again:"
+
+    day_hint = "Which day? Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday?\n"
+    day_error = "Invalid day, please choose again:"
+
     print('Hello! Let\'s explore some US bikeshare data!')
     # TO DO: get user input for city (chicago, new york city, washington). HINT: Use a while loop to handle invalid inputs
-    city = input(
-        "Would you like to see data for Chicago, New York, or Washington?\n").lower()
-    while True:
-        if city in cities:
-            break
-        else:
-            city = input("Invalid city, please choose again:").lower()
+    city = get_option(city_hint, city_error, cities)
+    # city = input(
+    #     "Would you like to see data for Chicago, New York, or Washington?\n").lower()
+    # while True:
+    #     if city in cities:
+    #         break
+    #     else:
+    #         city = input("Invalid city, please choose again:").lower()
 
     # TO DO: get user input for month (all, january, february, ... , june)
-    month = input(
-        "Which month? January, February, March, April, May, or June?\n").lower()
-    while True:
-        if (month in months) or (month == "all"):
-            break
-        else:
-            month = input("Invalid month, please choose again:").lower()
+    month = get_option(month_hint, month_error, months, extra_condition="month")
+
+    # month = input(
+    #     "Which month? January, February, March, April, May, or June?\n").lower()
+    # while True:
+    #     if (month in months) or (month == "all"):
+    #         break
+    #     else:
+    #         month = input("Invalid month, please choose again:").lower()
 
     # TO DO: get user input for day of week (all, monday, tuesday, ... sunday)
-    day = input(
-        "Which day? Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday?\n").lower()
-    while True:
-        if (day in daies) or (day == "all"):
-            break
-        else:
-            day = input("Invalid day, please choose again:").lower()
+    day = get_option(day_hint, day_error, daies, extra_condition="day")
+
+    # day = input(
+    #     "Which day? Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday?\n").lower()
+    # while True:
+    #     if (day in daies) or (day == "all"):
+    #         break
+    #     else:
+    #         day = input("Invalid day, please choose again:").lower()
 
     print('-' * 40)
     return city, month, day
