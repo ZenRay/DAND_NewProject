@@ -78,7 +78,7 @@ twitter_enhanced_data_copy[["in_reply_to_status_id", "in_reply_to_user_id", "ret
 	>该 `field` 的数据内容复杂性，因此需要从正则表达式的发那个方式去解决该问题，重点是怎么建立一个有效的 `regx pattern`
 	
 	```{Python}
-    pattern = re.compile("\s{0,1}(\d{1,2})/(\d{1,2})\s{0,1}.*\w\s{0,1}(https://.*\w){0,1}")
+    pattern = re.compile("\s{0,1}(\d{1,})/(\d{0,3}).{0,}|\s{.*\w\s{0,1}(https://.*\w){0,1}")
 	```
 	> 经过直接统计计算出 `tweet` 中提取出的数据和原有的评分数据进行比较，发现两者数据相符。在后续中将保留一个
 
