@@ -115,6 +115,16 @@ twitter_enhanced_data_copy[["in_reply_to_status_id", "in_reply_to_user_id", "ret
 
 	>该 `field` 的数据内容复杂性，因此需要从正则表达式的发那个方式去解决该问题，重点是怎么建立一个有效的 `regx pattern`
 	>后续需要处理的问题是数据聚合的时候比较得分数据之间是否存在差异
+	
+* `media_url` 中以 `None` 来保存缺失数据的情况
+
+	>该 `field` 的数据内容通过 `apply` 的方法，利用 `lambda` 创建了一个条件语句 将数据 `None` 数据转换为合适的缺失值
+	
+	```
+	tweet_data_copy["media_url"] = \
+		tweet_data_copy["media_url"].apply(lambda x: np.NaN \
+			if x==None else x)
+	```	
 * `source` 中保存了 `HTML` 标签类型数据
 
 	> 对该 `field` 的数据独特值进行探索，发现了该 `field` 目前主要包括了 `4` 种类型的值。该 `field` 的问题主要是以 `HTML` 标签的形式来储存数据，它需要被转换为合理的数据。
@@ -128,3 +138,5 @@ twitter_enhanced_data_copy[["in_reply_to_status_id", "in_reply_to_user_id", "ret
 	```
 	
 	> 上面 `html_content` 为需要获取 `tag` 的内容的函数。从官方文档可以指导这几个值是表示发送信息时的设备，所以通过 `source_dict` 进行映射调整数据值以优化数据。
+
+
