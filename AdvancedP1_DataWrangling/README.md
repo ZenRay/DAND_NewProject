@@ -2,6 +2,12 @@
 
 [toc]
 
+## 文件描述
+
+1. [data](./data)：存放下载的数据文件 `twitter_archive_enhanced.csv`, `image_predictions.tsv` 以及 `tweet_json.txt`
+2. [Test](./Test)：手动下载的三个数据文件，用于检验数据代码下载数据输否正确
+3. [report](./report)：包括此次需要审阅的相关文件
+
 ## 项目描述
 
 **简介**
