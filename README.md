@@ -208,3 +208,5 @@
 项目列表：
 
 * [拍拍贷业务数据分析](./AdvancedP2_ExploratoryDataAnalysis/ppdai)
+
+  原始数据地址：[拍拍贷业务数据](https://github.com/udacity/new-dand-advanced-china/raw/master/%E6%8E%A2%E7%B4%A2%E6%80%A7%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/%E9%A1%B9%E7%9B%AE/ppdai_3_23.zip)
