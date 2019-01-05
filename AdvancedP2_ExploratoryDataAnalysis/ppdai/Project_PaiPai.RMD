@@ -1,7 +1,16 @@
 拍拍贷业务数据分析
 ========================================================
+```{r comment, echo=FALSE, message=FALSE, warning=FALSE}
+# 加载你最终使用的所有组件
+# 在这个代码块的分析中。
 
-```{r checkwd, message=FALSE, warning=FALSE, paged.print=TRUE}
+# 注意，在这个代码块中，将参数 "echo" 设为假。
+# This prevents the code from displaying in the knitted HTML output.这可以避免代码混入 HTML 输出显示。
+# 应当在文件中，对所有代码块设为 echo=FALSE 。
+```
+
+
+```{r checkwd, echo=FALSE, message=FALSE, warning=FALSE, paged.print=TRUE}
 wd <- getwd()
 
 if (basename(wd) != "ppdai") {
@@ -10,24 +19,107 @@ if (basename(wd) != "ppdai") {
 }
 ```
 
-```{r packages echo=FALSE, message=FALSE, warning=FALSE, packages}
-# 加载你最终使用的所有组件
-# 在这个代码块的分析中。
+# 项目背景
+从 2015 年相关信息报告来看，当时整体 P2P 金融是积极发展同时行业内也存在大量的问题。行业内开始积极跟进 “互联网+” 发展，制度等建立的同时，也在完善建立监控平台。根据 [拍拍贷互联网金融训练营学员手册](https://shimo.im/doc/MrWr3GCmOs88udtP) 描述内容，了解到拍拍贷是互联网金融行业内知名一线公司，数年来持续高速增长。其是一家由工商部门批准，获批“金融信息服务”的经营范围，得到政府认可的互联网金融平台。拍拍贷依据先进的理念和创新的技术建立了一个安全、高效、透明**的互联网金融平台**，规范**个人借贷行为**，让**借入者改善生产生活**，让**借出者增加投资渠**道。该数据集是为了基于**风控**的角度进行的，因此也将围绕了解当初的学习大纲的角度来完成项目
+![](https://images-cdn.shimo.im/oqsfzNnEYhonS3Js/image.png!thumbnail)
 
-# 注意，在这个代码块中，将参数 "echo" 设为假。
-# This prevents the code from displaying in the knitted HTML output.这可以避免代码混入 HTML 输出显示。
-# 应当在文件中，对所有代码块设为 echo=FALSE 。
+此外从 [拍拍贷互联网金融数据训练营](https://www.kesci.com/home/dataset/58c614aab84b2c48165a262d/document) 举办的训练营讨论了解该数据集涉及到的拍拍贷背景信息：
+
+**业务特点**：
+
+* 线上交易，提供网络借贷信息，包括借贷信息搜集，公布，资信评估，信息交互，借贷撮合等服务。不负责刚性兑付和兜底——**刚性兑付**，指项目产品到期后，P2P平台必须分配给投资人本金以及收益。当投资发生逾期和兑付困难时，P2P平台进行兜底处理，垫资偿还投资人资金的做法。
+* 拍拍贷根据借款人提供的各项信息进行线上审查，平台无担保、不承诺垫付本息
+* 依托大数据技术，开发魔镜系统进行风控。目前了解到相关信息是通过多个特征信息进行控制。魔镜评级因素，包括历史还款记录，个人负债，信用历史，个人信息，第三方数据等
+* 平台开放提供 API 进行数据访问——[拍拍贷开放平台](http://open.ppdai.com/doc/index)
+
+**多样的产品类型**：
+
+* 散标：通常是指独立借款人自主发布的单独借款需求。
+  * 标的，平台投资产品中的某个单一具体项目
+    1. 借款标，指借款人根据借款需求而发布的借款请求，一般包括借入的目的、借入金额、利率、借款期限及还款方式等
+    2. 信用标，凭着借款人的信誉发放的贷款项目。特点是借款人不需要提供担保，仅凭自己的信誉就能取得贷款，并以借款人信用程度作为还款保证。信用贷款是线上P2P个人贷款的主要放款方式。这种贷款方式操作便捷，但风险也较大，一般平台会对借款方的经济效益、经营管理水平、发展前景等情况进行详细的考察，以降低风险。AA是参与质量保障服务的标的。若借款人出现逾期，平台会在逾期行为发生1 天后垫付投资人，可以理解为"逾期就赔"。此类标的对应的借款人需额外支付一笔服务费。AAA是拍拍贷投资人申请的借款标的，又称安全标。若借款人发生逾期或坏账，拍拍贷将用该借款人在平台的剩余待收资金来支付投资人。
+  * 提供债权转让，指债权人通过与第三人订立合同将债权的全部或部分转移于第三人。债权转让主要是为了提高用户投资的流动性。当出借人需要使用资金时，如果所投资的P2P产品还没到期，就可以通过转让P2P产品的债权给其他投资人，从而完成债权转让，获得流动资金。对于P2P平台来说，债权转让可以让平台交易更为活跃，放大平台成交量。债权转让不仅可以在同一平台之内
+  * 还款方式，指平台与投资人双方约定的还款周期，而利息计算方式上是采用 __等额本息__。目前各平台有4种还款方式：
+    1. 按月还款（等额本息）借款人发布借款标，按月支付本金和利息进行还款的一种方式
+    2. 按季还款 借款人发布借款标，按月支付利息，按季支付本金进行还款的一种方式；
+    3. 每月还息，到期还本 借款人发布借款标，按月支付利息，到期支付本金进行还款的一种方式；
+    4.按天还款 借款人发布借款标，按天支付利息，到期支付本金进行还款的一种方式。
+* 彩虹计划：定期自动投资，12 种期限选择。收益公式：$总收益=本金 \times (1+月利率)^{月数}$
+* 拍活宝：时间限制——9 am - 9 pm，浮动收益，收益累计复投。特点是流动性强
+* 月月涨：收益和累计月正相关，收益公式公式：$持续持有月数收益=本金 \times (月利率_1 + \ldots + 月利率_n)$
+
+其他信息，如利息计算方式：
+* 等额本息 是在还款期内，每月偿还同等数额的贷款(包括本金和利息)。每月需要还款的金额不变。但是随着时间的增加，还款金额中的本金占比越来越高，利息占比越来越少。计算公式为：
+$$
+\begin{align}
+&每月还本付息金额= \frac{(本金 \times 月利率)\times (1+月利率)^{期限}}{(1+月利率)^{期限} - 1} \\
+&每月利息 = 剩余本金 \times 贷款月利率 \\
+&每月本金=月供-每月利息\\
+&还款总利息=\frac{贷款额 \times 贷款月数 \times 月利率 \times (1+月利率)^{贷款月数}}{((1+月利率)^{还款月数} - 1) -贷款额} \\
+&还款总额=\frac{还款月数 \times 贷款额 \times 月利率 \times (1+月利率)^{贷款月数}}{(1+月利率)^{还款月数} - 1}\\
+\end{align}
+$$
+
+* 等额本金 最大的特点是每月的还款额不同，呈现逐月递减的状态;它是将贷款本金按还款的总月数均分，再加上上期剩余本金的利息，这样就形成月还款额，所以等额本金法第一个月的还款额最多 ，然后逐月减少，越还越少，计算公式为：
+$$
+\begin{align}
+&每月还本付息金额 =\frac{本金}{还款月数}+(本金-累计已还本金)×月利率  \\
+&每月本金=\frac{总本金}{还款月数}  \\
+&每月利息=(本金-累计已还本金)\times月利率  \\
+&还款总利息=（还款月数+1）\times 贷款额 \times \frac{月利率}{2}  \\
+&还款总额=(还款月数+1)\times贷款额\times \frac{月利率}{2}+贷款额 \\
+\end{align}
+$$
+
+注意⚠️在等额本金中，人们每月归还的本金额始终不变，利息随剩余本金的减少而减少，因而其每月还款额逐渐减少。与等额本金相比，等额本息由于是将越来越大比例的本金拖到后期来还，因此还款总利息要比等额本金高
+
+```{r packages, echo=FALSE, message=FALSE, warning=FALSE}
+
 
 library(ggplot2)
 ```
 
-```{r echo=FALSE, Load_the_Data}
+```{r Load_the_Data, echo=FALSE}
 # 加载数据
+df.lc <- read.csv("./LC.csv")
+df.lp <- read.csv("./LP.csv")
+df.lcis <- read.csv("./LCIS.csv")
+```
 
+
+```{r change_dtype, echo=FALSE}
+# change the data type
+df.lc$ListingId <- as.factor(df.lc$ListingId)
+df.lc$借款成功日期 <- as.Date(df.lc$借款成功日期)
+
+df.lp$ListingId <- as.factor(df.lp$ListingId)
+df.lp$还款状态 <- factor(
+  df.lp$还款状态, levels = seq.int(0, 4), 
+  labels = c('未还款', '已正常还款', '已逾期还款', '已提前还清该标全部欠款', '已部分还款')
+)
+df.lp$到期日期 <- as.Date(df.lp$到期日期)
+df.lp$还款日期 <- as.Date(df.lp$还款日期)
+df.lp$recorddate <- as.Date(df.lp$recorddate)
+
+df.lcis$ListingId <- as.factor(df.lcis$ListingId)
+df.lcis$借款成功日期 <- as.Date(df.lcis$借款成功日期)
+df.lcis$历史成功借款次数 <- as.integer(df.lcis$历史成功借款次数)
+df.lcis$历史成功借款金额 <- as.numeric(df.lcis$历史成功借款金额)
+df.lcis$历史正常还款期数 <- as.factor(df.lcis$历史正常还款期数)
+df.lcis$历史逾期还款期数 <- as.factor(df.lcis$历史逾期还款期数)
+df.lcis$当前到期期数 <- as.factor(df.lcis$当前到期期数)
+df.lcis$当前还款期数 <- as.factor(df.lcis$当前还款期数)
+df.lcis$上次还款日期 <- as.Date(df.lcis$上次还款日期)
+df.lcis$上次还款本金 <- as.numeric(df.lcis$上次还款本金)
+df.lcis$上次还款利息 <- as.numeric(df.lcis$上次还款利息)
+df.lcis$下次计划还款日期 <- as.character.Date(df.lcis$下次计划还款日期)
+df.lcis$下次计划还款本金 <- as.numeric(df.lcis$下次计划还款本金)
+df.lcis$下次计划还款利息 <- as.numeric(df.lcis$下次计划还款利息)
+df.lcis$recorddate <- as.Date(df.lcis$recorddate)
 ```
 
 # 单变量绘图选择
-```{r echo=FALSE, Univariate_Plots}
+```{r Univariate_Plots, echo=FALSE}
 
 ```
 
@@ -46,7 +138,7 @@ library(ggplot2)
 
 
 # 双变量绘图选择
-```{r echo=FALSE, Bivariate_Plots}
+```{r Bivariate_Plots, echo=FALSE}
 
 ```
 
@@ -63,7 +155,7 @@ library(ggplot2)
 
 # 多变量绘图选择
 
-```{r echo=FALSE, Multivariate_Plots}
+```{r Multivariate_Plots, echo=FALSE}
 
 ```
 
@@ -80,7 +172,7 @@ library(ggplot2)
 # 定稿图与总结
 
 ### 绘图一
-```{r echo=FALSE, Plot_One}
+```{r Plot_One, echo=FALSE}
 
 ```
 
@@ -88,7 +180,7 @@ library(ggplot2)
 
 
 ### 绘图二
-```{r echo=FALSE, Plot_Two}
+```{r Plot_Two, echo=FALSE}
 
 ```
 
@@ -96,7 +188,7 @@ library(ggplot2)
 
 
 ### 绘图三
-```{r echo=FALSE, Plot_Three}
+```{r Plot_Three, echo=FALSE}
 
 ```
 
@@ -105,3 +197,9 @@ library(ggplot2)
 ------
 
 # 反思
+
+# 参考
+1. [拍拍贷：做“纯线上+无担保”模式的网贷平台新华社](http://dz.jjckb.cn/www/pages/webpage2009/html/2014-05/09/content_90070.htm?div=-1)
+2. [拍拍贷测评报告](https://www.jianshu.com/p/72138f2d6e3e)
+3. [拍拍贷的模式分析](https://wenku.baidu.com/view/529ec747ccbff121dd36839e.html)
+4. [W1H1_078姜冰钰 - Kesci.com](https://www.kesci.com/home/project/58c80072ed74a44eb1b8d57f)
