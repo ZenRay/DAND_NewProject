@@ -118,6 +118,15 @@ df.lcis$下次计划还款利息 <- as.numeric(df.lcis$下次计划还款利息)
 df.lcis$recorddate <- as.Date(df.lcis$recorddate)
 ```
 
+```{r MergeData, include=FALSE}
+# merge the loan data about df.lc and df.lp
+df.loan <- merge(df.lc, df.lp, by="ListingId")
+
+# delete the original data
+rm(list = c("df.lc", "df.lp"))
+```
+
+
 # 单变量绘图选择
 ```{r Univariate_Plots, echo=FALSE}
 
