@@ -74,16 +74,16 @@ $$
 注意⚠️在等额本金中，人们每月归还的本金额始终不变，利息随剩余本金的减少而减少，因而其每月还款额逐渐减少。与等额本金相比，等额本息由于是将越来越大比例的本金拖到后期来还，因此还款总利息要比等额本金高
 
 ```{r packages, echo=FALSE, message=FALSE, warning=FALSE}
-
-
+library(plyr)
+library(dplyr)
 library(ggplot2)
 ```
 
 ```{r Load_the_Data, echo=FALSE}
 # 加载数据
-df.lc <- read.csv("./LC.csv")
-df.lp <- read.csv("./LP.csv")
-df.lcis <- read.csv("./LCIS.csv")
+df.lc <- read.csv("./LC.csv", na.strings = c("NA", "NULL"))
+df.lp <- read.csv("./LP.csv", na.strings = c("NA", "NULL"))
+df.lcis <- read.csv("./LCIS.csv", na.strings = c("NA", "NULL"))
 ```
 
 
@@ -112,7 +112,7 @@ df.lcis$当前还款期数 <- as.factor(df.lcis$当前还款期数)
 df.lcis$上次还款日期 <- as.Date(df.lcis$上次还款日期)
 df.lcis$上次还款本金 <- as.numeric(df.lcis$上次还款本金)
 df.lcis$上次还款利息 <- as.numeric(df.lcis$上次还款利息)
-df.lcis$下次计划还款日期 <- as.character.Date(df.lcis$下次计划还款日期)
+df.lcis$下次计划还款日期 <- as.Date.character(df.lcis$下次计划还款日期, "%Y/%m/%d")
 df.lcis$下次计划还款本金 <- as.numeric(df.lcis$下次计划还款本金)
 df.lcis$下次计划还款利息 <- as.numeric(df.lcis$下次计划还款利息)
 df.lcis$recorddate <- as.Date(df.lcis$recorddate)
@@ -123,11 +123,36 @@ df.lcis$recorddate <- as.Date(df.lcis$recorddate)
 df.loan <- merge(df.lc, df.lp, by="ListingId")
 
 # delete the original data
-rm(list = c("df.lc", "df.lp"))
+rm(list = c("df.lc", "df.lp", "wd"))
 ```
 
+# 整体的数据结构
+在读取到的数据中，存在多种数据类型不合适的地方，需要 *factor* 或者 *factor* 类型转换为原本的日期类型；而 **ListingId** 应该表示为类别型数据，因此进行了相应的调整。
 
-# 单变量绘图选择
+```{r DataStruct, echo=FALSE}
+toString("The investment data structur:")
+str(df.lcis)
+
+toString("The loan data structure:")
+str(df.loan)
+```
+
+```{r CheckMissingvalue, echo=FALSE}
+toString("The amount of missing value about loan:")
+apply(is.na.data.frame(df.loan), 2, sum)
+
+toString("The amount of missing value about investment:")
+apply(is.na.data.frame(df.lcis), 2, sum)
+```
+
+```{r include=FALSE}
+# explore the loan missing value
+nrow(filter(df.loan, 还款状态=="未还款" & is.na(df.loan$还款日期))) == sum(is.na(df.loan$还款日期 ))
+```
+
+从以上的结果来看，Loan 数据中存在缺失数据的字段为 **还款日期**。从对还款日期和还款状态来看，还款日期缺失是因为该债务状态是没有开始还款；在 Invenstment 数据中存在缺失数据的字段为 **上次还款日期** 和 **recorddate**。 **recorddate** 的缺失值中和 **上次还款日期** 的缺失值也是同期的，但还需要对 **上次还款日期** 进行分析。
+
+# 单变量分析
 ```{r Univariate_Plots, echo=FALSE}
 
 ```
@@ -211,4 +236,5 @@ rm(list = c("df.lc", "df.lp"))
 1. [拍拍贷：做“纯线上+无担保”模式的网贷平台新华社](http://dz.jjckb.cn/www/pages/webpage2009/html/2014-05/09/content_90070.htm?div=-1)
 2. [拍拍贷测评报告](https://www.jianshu.com/p/72138f2d6e3e)
 3. [拍拍贷的模式分析](https://wenku.baidu.com/view/529ec747ccbff121dd36839e.html)
-4. [W1H1_078姜冰钰 - Kesci.com](https://www.kesci.com/home/project/58c80072ed74a44eb1b8d57f)
+4. [W1H1_078姜冰钰](https://www.kesci.com/home/project/58c80072ed74a44eb1b8d57f)
+5. [W3H3_013顾漫青+078姜冰钰+108章洁_强迫症患者章漫钰](https://www.kesci.com/home/project/58e0c91dc34d021cbce84bdb)
