@@ -126,7 +126,7 @@ df.loan <- merge(df.lc, df.lp, by="ListingId")
 rm(list = c("df.lc", "df.lp", "wd"))
 ```
 
-# 整体的数据结构
+# 数据评估和清理
 在读取到的数据中，存在多种数据类型不合适的地方，需要 *factor* 或者 *factor* 类型转换为原本的日期类型；而 **ListingId** 应该表示为类别型数据，因此进行了相应的调整。
 
 ```{r DataStruct, echo=FALSE}
@@ -155,16 +155,68 @@ if (nrow(filter(df.loan, 还款状态=="未还款" & is.na(df.loan$还款日期)
 
 ```
 
-```{r checkInvestmentMissingValue, echo=FALSE}
+```{r checkInvestmentMissingValue, include=FALSE}
+# display the unique value of item under the recorddate missing value
 if (sum(is.na(df.lcis$recorddate)) > 1) {
-  unique(subset(df.lcis, is.na(recorddate), select = 标当前状态))
+  print(unique(subset(df.lcis, is.na(recorddate), select = 标当前状态)))
 }
 
 # filter the non missing value of recorddate
 df.lcis <- subset(df.lcis, !is.na(recorddate))
+
+# information about paying back next time
+if (sum(apply(
+  is.na(subset(df.lcis, select = 
+               c("下次计划还款日期", "下次计划还款本金", "下次计划还款利息"))),
+  1, all)) == sum(is.na(df.lcis$下次计划还款日期))) {
+  print("Information about paying back at next time is in unison!")
+}
+
+# check the duplicated value
+if (anyDuplicated(df.loan)) {
+  print("There is some duplicated value in the loan dataset")
+} else {
+  print("There is not duplicated value in the loan dataset")
+}
+
+if (anyDuplicated(df.lcis)) {
+  print("There is some duplicated value in the investment dataset")
+} else {
+  print("There is not duplicated value in the investment dataset")
+}
+
+# check paying back at last time
+check.loan <- df.lcis %>% 
+  filter(is.na(上次还款日期)) %>% 
+  transmute(
+    距离借款成功天数=recorddate - 借款成功日期, 
+    recorddate=recorddate, 
+    ListingId=ListingId,
+    借款成功日期=借款成功日期, 
+    已还款总额=已还本金+已还利息, 
+    上次还款总额=上次还款本金+上次还款利息, 
+    下次还款总额=下次计划还款本金+下次计划还款利息, 
+    借款期限=借款期限, 
+    历史逾期还款期数=历史逾期还款期数, 
+    总待还本金=总待还本金,
+    上次还款本金=上次还款本金,
+    上次还款利息=上次还款利息
+  )
+
+subset(check.loan, subset = 上次还款总额 > 0)
 ```
 
-从以上的结果来看，Loan 数据中存在缺失数据的字段为 **还款日期**。从对还款日期和还款状态来看，还款日期缺失是因为该债务状态是没有开始还款；在 Invenstment 数据字段中 **recorddate** 缺失值进行探索，发现该数据缺失是没有任何意义的需要删除——尤其和其缺失数据相关的字段中 **标当前状态** 数据存在异常。
+
+从以上的结果来看:
+
+1. Loan 数据中存在缺失数据的字段为 **还款日期**。从对还款日期和还款状态来看，还款日期缺失是因为该债务状态是没有开始还款
+2. 在 Invenstment 数据中
+  * 数据存在数据冗余的情况
+  * 字段 **recorddate** 缺失值进行探索，发现该数据缺失是没有任何意义的需要删除——尤其和其缺失数据相关的字段中 **标当前状态** 数据存在异常
+  * 关于下次还款信息 **下次计划还款日期**, **下次计划还款本金**, **下次计划还款利息** 是缺失是一致的，说明目前还没有开始换框。数据是具有意义的
+  * **上次还款本金** 和 **上次还款利息** 中缺失值因为上次没有发生还款；此外存在 **上次还款日期** 是缺失值而另两个上次还款信息不是缺失值的情况，需要依据之前的信息来判断
+  
+
 
 # 单变量分析
 ```{r Univariate_Plots, echo=FALSE}
