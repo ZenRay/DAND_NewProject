@@ -10,12 +10,19 @@
 ```
 
 
-```{r checkwd, echo=FALSE, message=FALSE, warning=FALSE, paged.print=TRUE}
+```{r checkwd, message=FALSE, warning=FALSE, include=FALSE, paged.print=TRUE}
 wd <- getwd()
 
 if (basename(wd) != "ppdai") {
   wd <- readline("Enter the working directory: ")
   setwd(wd)
+}
+
+clean.option = as.logical(readline("Clean global environment? (TRUE/FALSE) "))
+if (clean.option) {
+  rm(list = ls())
+  # release all variable
+  invisible(gc())
 }
 ```
 
@@ -86,6 +93,7 @@ df.lp <- read.csv("./LP.csv", na.strings = c("NA", "NULL"), stringsAsFactors = F
 df.lcis <- read.csv("./LCIS.csv", na.strings = c("NA", "NULL"), stringsAsFactors = FALSE)
 ```
 
+# 数据评估和清理
 
 ```{r change_dtype, echo=FALSE}
 # change the data type
@@ -118,15 +126,7 @@ df.lcis$下次计划还款利息 <- as.numeric(df.lcis$下次计划还款利息)
 df.lcis$recorddate <- as.Date(df.lcis$recorddate)
 ```
 
-```{r MergeData, include=FALSE}
-# merge the loan data about df.lc and df.lp
-df.loan <- merge(df.lc, df.lp, by="ListingId")
-
-# delete the original data
-rm(list = c("df.lc", "df.lp", "wd"))
-```
-
-# 数据评估和清理
+## 数据类型调整
 在读取到的数据中，存在多种数据类型不合适的地方，需要 *factor* 或者 *factor* 类型转换为原本的日期类型；而 **ListingId** 应该表示为类别型数据，因此进行了相应的调整。
 
 ```{r DataStruct, echo=FALSE}
@@ -134,20 +134,22 @@ toString("The investment data structur:")
 str(df.lcis)
 
 toString("The loan data structure:")
-str(df.loan)
+str(df.lc)
+
+str(df.lp)
 ```
 
 ```{r CheckMissingvalue, echo=FALSE}
 toString("The amount of missing value about loan:")
-apply(is.na(df.loan), 2, sum)
+colSums(is.na(df.lp))
 
 toString("The amount of missing value about investment:")
-apply(is.na(df.lcis), 2, sum)
+colSums(is.na(df.lcis))
 ```
 
 ```{r checkLoanMissingValue, echo=FALSE}
 # explore the loan missing value
-if (nrow(filter(df.loan, 还款状态=="未还款" & is.na(df.loan$还款日期))) == sum(is.na(df.loan$还款日期 ))){
+if (nrow(filter(df.lp, 还款状态=="未还款" & is.na(df.lp$还款日期))) == sum(is.na(df.lp$还款日期 ))){
   print("The loan hadn't paied back firstly. The missing value is validate about the loan.")
 } else {
   print("The missing value is invalidate about the loan.")
@@ -155,7 +157,7 @@ if (nrow(filter(df.loan, 还款状态=="未还款" & is.na(df.loan$还款日期)
 
 ```
 
-```{r checkInvestmentMissingValue, include=FALSE}
+```{r checkInvestmentMissingValue, echo=FALSE}
 # display the unique value of item under the recorddate missing value
 if (sum(is.na(df.lcis$recorddate)) > 1) {
   print(unique(subset(df.lcis, is.na(recorddate), select = 标当前状态)))
@@ -173,16 +175,17 @@ if (sum(apply(
 }
 
 # check the duplicated value
-if (anyDuplicated(df.loan)) {
-  print("There is some duplicated value in the loan dataset")
-} else {
-  print("There is not duplicated value in the loan dataset")
-}
-
 if (anyDuplicated(df.lcis)) {
   print("There is some duplicated value in the investment dataset")
 } else {
   print("There is not duplicated value in the investment dataset")
+}
+
+
+if (anyDuplicated(df.lp)) {
+  print("There is some duplicated value in the loan dataset")
+} else {
+  print("There is not duplicated value in the loan dataset")
 }
 
 # check paying back at last time
@@ -204,22 +207,41 @@ check.loan <- df.lcis %>%
   )
 
 subset(check.loan, subset = 上次还款总额 > 0)
+
+rm(list = c("check.loan"))
+invisible(gc())
+# 显示上次还款日期为缺失值，而上次还款本金和上次还款利息不为缺失值的数据
+subset(df.lcis, subset = is.na(上次还款日期) & !is.na(上次还款本金) & !is.na(上次还款利息))
+
+# 根据记录日期进行排序，确认数据情况
+subset(df.lcis, subset = ListingId == 7865709) %>% arrange(recorddate)
 ```
 
+```{r WrangleData, include=False}
+# delete the duplicated rows
+df.lcis <- subset(df.lcis, subset = !duplicated(df.lcis))
 
+# merge the loan data about df.lc and df.lp
+df.loan <- merge(df.lc, df.lp, by="ListingId")
+
+# delete the original data and release the all object
+rm(list = c("df.lc", "df.lp"))
+invisible(gc())
+```
+
+## 其他数据问题
 从以上的结果来看:
 
 1. Loan 数据中存在缺失数据的字段为 **还款日期**。从对还款日期和还款状态来看，还款日期缺失是因为该债务状态是没有开始还款
 2. 在 Invenstment 数据中
   * 数据存在数据冗余的情况
   * 字段 **recorddate** 缺失值进行探索，发现该数据缺失是没有任何意义的需要删除——尤其和其缺失数据相关的字段中 **标当前状态** 数据存在异常
-  * 关于下次还款信息 **下次计划还款日期**, **下次计划还款本金**, **下次计划还款利息** 是缺失是一致的，说明目前还没有开始换框。数据是具有意义的
-  * **上次还款本金** 和 **上次还款利息** 中缺失值因为上次没有发生还款；此外存在 **上次还款日期** 是缺失值而另两个上次还款信息不是缺失值的情况，需要依据之前的信息来判断
-  
+  * 关于下次还款信息 **下次计划还款日期**, **下次计划还款本金**, **下次计划还款利息** 是缺失是一致的，说明目前还没有开始换框。数据是具有意义的。而其中主要的还款状态为 _已还清_， _正常还款中_。
+  * **上次还款本金** 和 **上次还款利息** 中缺失值因为上次没有发生还款；此外存在 **上次还款日期** 是缺失值而另两个上次还款信息不是缺失值的情况，需要依据之前的信息来判断，得出发生的 **ListingId** 都是在 _7865709_。之后通过查询相关该 **ListingId** 的数据，确认该条目数据是存在逾期的情况
 
 
 # 单变量分析
-```{r Univariate_Plots, echo=FALSE}
+```{r age, echo=FALSE}
 
 ```
 
@@ -297,7 +319,7 @@ subset(check.loan, subset = 上次还款总额 > 0)
 ------
 
 # 反思
-
+* 对某些字段信息不明确，例如下次还款相关信息，无法做出正常对分析
 # 参考
 1. [拍拍贷：做“纯线上+无担保”模式的网贷平台新华社](http://dz.jjckb.cn/www/pages/webpage2009/html/2014-05/09/content_90070.htm?div=-1)
 2. [拍拍贷测评报告](https://www.jianshu.com/p/72138f2d6e3e)
