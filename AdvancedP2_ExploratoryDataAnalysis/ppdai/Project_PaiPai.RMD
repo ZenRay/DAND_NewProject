@@ -84,6 +84,8 @@ $$
 library(plyr)
 library(dplyr)
 library(ggplot2)
+library(ggthemes)
+library(gridExtra)
 ```
 
 ```{r Load_the_Data, echo=FALSE}
@@ -225,7 +227,7 @@ df.lcis <- subset(df.lcis, subset = !duplicated(df.lcis))
 df.loan <- merge(df.lc, df.lp, by="ListingId")
 
 # delete the original data and release the all object
-rm(list = c("df.lc", "df.lp"))
+rm(list = c("df.lp"))
 invisible(gc())
 ```
 
@@ -241,7 +243,50 @@ invisible(gc())
 
 
 # 单变量分析
-```{r age, echo=FALSE}
+## 借款人信息分析
+```{r BorrowerInfo, echo=FALSE}
+# set chinese font theme
+chinese_theme = theme(
+  title = element_text(family = "STHeiti"), 
+  text = element_text(family = "STHeiti")
+)
+
+# plot age
+age <- ggplot(aes(x=年龄), data=df.lc) + 
+    geom_histogram(binwidth = 2, color = "white", fill="grey") + 
+    theme_wsj() +
+    theme(
+        title=element_text(family="STHeiti"), 
+        panel.grid.major.y = element_line(colour = "#FFB7DD", linetype = 3), 
+        axis.ticks.x.bottom = element_line(size = .2)) + 
+    labs(x="年龄", y="频率", title = "年龄分布情况") + 
+    scale_x_continuous(breaks = seq.int(min(df.lc$年龄)-1, max(df.lc$年龄)+1, 2)) + 
+    scale_y_continuous(breaks = seq.int(0, 50000, 5000), expand = c(0,0))  # 通过 expand 设置轴距离边的距离
+
+# plot gender
+gender <- ggplot(aes(x=性别), data = df.lc) + 
+  geom_bar(fill="grey") + 
+  # 计算显示百分比
+  stat_count(
+    aes(label=paste0(sprintf("%1.1f%%", ..count../sum(..count..) * 100)), 
+        y=..count..* 0.5), 
+    geom = "text", color = "white", size = 10,
+    position = position_dodge(width = 0.2)
+  ) + 
+  labs(title = "性别占比") + 
+  theme_wsj() + 
+  chinese_theme 
+
+# plot initial level
+init.level <- ggplot(aes(x=初始评级), data=df.lc) + 
+  stat_count(aes(y=..count../sum(..count..) * 100), fill="grey") + 
+  labs(title = "初始评级百分比") + # 设置标题
+  scale_y_continuous(
+    labels = paste0(sprintf("%d%%", seq.int(0, 45, 5))),  # 设置显示为百分比
+      breaks = seq.int(0, 45, 5)
+  ) + 
+  theme_wsj() + 
+  chinese_theme
 
 ```
 
@@ -319,7 +364,8 @@ invisible(gc())
 ------
 
 # 反思
-* 对某些字段信息不明确，例如下次还款相关信息，无法做出正常对分析
+* 对某些字段信息不明确，例如下次还款相关信息，无法做出正确判断。**ListingId** 是否是代表每笔交易
+
 # 参考
 1. [拍拍贷：做“纯线上+无担保”模式的网贷平台新华社](http://dz.jjckb.cn/www/pages/webpage2009/html/2014-05/09/content_90070.htm?div=-1)
 2. [拍拍贷测评报告](https://www.jianshu.com/p/72138f2d6e3e)
