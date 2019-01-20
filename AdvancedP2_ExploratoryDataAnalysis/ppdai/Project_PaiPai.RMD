@@ -244,7 +244,7 @@ invisible(gc())
 
 # 单变量分析
 ## 借款人信息分析
-```{r BorrowerInfo, echo=FALSE}
+```{r BorrowerInfo, echo=FALSE, fig.height=10, fig.width=12}
 # set chinese font theme
 chinese_theme = theme(
   title = element_text(family = "STHeiti"), 
@@ -254,14 +254,17 @@ chinese_theme = theme(
 # plot age
 age <- ggplot(aes(x=年龄), data=df.lc) + 
     geom_histogram(binwidth = 2, color = "white", fill="grey") + 
-    theme_wsj() +
-    theme(
-        title=element_text(family="STHeiti"), 
-        panel.grid.major.y = element_line(colour = "#FFB7DD", linetype = 3), 
-        axis.ticks.x.bottom = element_line(size = .2)) + 
     labs(x="年龄", y="频率", title = "年龄分布情况") + 
     scale_x_continuous(breaks = seq.int(min(df.lc$年龄)-1, max(df.lc$年龄)+1, 2)) + 
-    scale_y_continuous(breaks = seq.int(0, 50000, 5000), expand = c(0,0))  # 通过 expand 设置轴距离边的距离
+    scale_y_continuous(breaks = seq.int(0, 50000, 5000), expand = c(0,0)) +  # 通过 expand 设置轴距离边的距离
+    theme_wsj() +
+    geom_vline(xintercept = min(df.lc$年龄), color="red") + 
+    annotate("text", x=21, y = 47000, label = paste("Min Age:", min(df.lc$年龄)), colour="red") + 
+    chinese_theme
+    # theme(
+    #     title=element_text(family="STHeiti"), 
+    #     panel.grid.major.y = element_line(colour = "#FFB7DD", linetype = 3), 
+    #     axis.ticks.x.bottom = element_line(size = .2))
 
 # plot gender
 gender <- ggplot(aes(x=性别), data = df.lc) + 
@@ -288,7 +291,42 @@ init.level <- ggplot(aes(x=初始评级), data=df.lc) +
   theme_wsj() + 
   chinese_theme
 
+# plot the certification
+cert.change <-function (x) {
+  case_when(
+    x == "成功认证" ~ 1,
+    x == "未成功认证" ~ 0
+  )
+}
+
+df.cert <- df.lc %>% 
+  select(contains("认证")) %>%  
+  mutate_all(cert.change) %>% 
+  mutate(认证总数 = rowSums(.))
+
+cert <- ggplot(aes(x=认证总数), data=df.cert) +
+  geom_bar(fill="grey") +
+  geom_text(aes(y=..count.., label= ..count.., vjust=-0.5), stat = "count") +
+  scale_x_continuous(breaks = c(0, 1, 2, 3, 4, 5, 6), expand = c(0,0)) +
+  scale_y_continuous(
+    breaks = seq.int(0, 200000, 20000), limits = c(0, 150000), expand = c(0,0),
+    labels = sprintf("%7.0f", seq.int(0, 200000, 20000))
+  ) + 
+  labs(title = "认证数量分布统计", y = "Frequency", x = "认证数量等级") +
+  theme_wsj() +
+  chinese_theme
+
+# plot borrower information
+grid.arrange(age, gender, init.level, cert, nrow = 2, ncol = 2)
 ```
+
+从标的借款人信息中，可以了解到一下信息：
+
+1. 拍拍贷的年龄主要集中在年轻人，最年轻的借款人年龄在 17 岁，且主要的年龄在 26 岁左右。超过 40 岁年龄的人数逐渐减少。这反映出了用户的主要为年轻人。
+2. 在性别方面，男性的用户数量明显高于女性，占总人数比例的 $\frac{2}{3}$, 达到了 $67.6\%$
+3. 申请贷款时，用户的等级都是在 A 至 F 之间。其中等级 C 和 D 占据了大部分（分别达到了 $40\%$ 左右），也就是说明集中借款的人员等级在中等上
+4. 在申请贷款时，进行了多种认证，包括 _手机认证_, _户口认证_, _视频认证_, _学历认证_, _征信认证_, 以及 _淘宝认证_ 等六种类型认证方式。总体上来看，进行认证的种类上都是偏少的，大多数人是进行一种认证方式或者没有认证
+
 
 # 单变量分析
 
