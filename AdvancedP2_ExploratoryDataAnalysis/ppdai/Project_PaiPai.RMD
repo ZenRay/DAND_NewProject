@@ -1,5 +1,25 @@
 拍拍贷业务数据分析
 ========================================================
+
+```{r}
+category <- function(df, var, max_value, max_label) {
+  df %>% 
+  select(var) %>% 
+  transmute(
+    variable = case_when(
+      var > max_value ~ max_label,
+      TRUE ~ as.character(var)
+    )
+  ) %>% 
+  transmute_all(.funs = factor, levels = c(as.character(seq.int(0, max_value, 1)), max_label))
+}
+
+insert_minor <- function(major_labs, n_minor) {labs <- 
+                              c( sapply( major_labs, function(x) c(x, rep("", 4) ) ) )
+                              labs[1:(length(labs)-n_minor)]}
+
+```
+
 ```{r comment, echo=FALSE, message=FALSE, warning=FALSE}
 # 加载你最终使用的所有组件
 # 在这个代码块的分析中。
@@ -159,7 +179,7 @@ if (nrow(filter(df.lp, 还款状态=="未还款" & is.na(df.lp$还款日期))) =
 
 ```
 
-```{r checkInvestmentMissingValue, echo=FALSE}
+```{r checkInvestmentMissingValue, include=FALSE}
 # display the unique value of item under the recorddate missing value
 if (sum(is.na(df.lcis$recorddate)) > 1) {
   print(unique(subset(df.lcis, is.na(recorddate), select = 标当前状态)))
@@ -244,7 +264,7 @@ invisible(gc())
 
 # 单变量分析
 ## 借款人信息分析
-```{r BorrowerInfo, echo=FALSE, fig.height=10, fig.width=12}
+```{r BorrowerInfo, echo=FALSE, fig.height=16, fig.width=12, warning=FALSE}
 # set chinese font theme
 chinese_theme = theme(
   title = element_text(family = "STHeiti"), 
@@ -276,7 +296,7 @@ gender <- ggplot(aes(x=性别), data = df.lc) +
     geom = "text", color = "white", size = 10,
     position = position_dodge(width = 0.2)
   ) + 
-  labs(title = "性别占比") + 
+  labs(title = "性别频数分布", subtitle = "及其占比(%)") + 
   theme_wsj() + 
   chinese_theme 
 
@@ -316,8 +336,119 @@ cert <- ggplot(aes(x=认证总数), data=df.cert) +
   theme_wsj() +
   chinese_theme
 
-# plot borrower information
-grid.arrange(age, gender, init.level, cert, nrow = 2, ncol = 2)
+
+# borrow freq
+borrow.freq.data <-  df.lc %>% 
+  select(历史成功借款次数) %>% 
+  transmute(
+    历史成功借款次数 = case_when(
+      历史成功借款次数 > 10 ~ "10+",
+      TRUE ~ as.character(历史成功借款次数)
+    )
+  ) %>% 
+  transmute_all(.funs = factor, levels = c(as.character(seq.int(0, 10, 1)), "10+")) # 其他参数可以 args_name = value 形式传入
+
+  # factor(
+  #   .data$历史成功借款次数, levels = c(as.character(seq.int(0, 10, 1)), "10+"), # 这里需要使用 .data，不能直接使用字段名称
+  #   labels  = c(as.character(seq.int(0, 10, 1)), "10+")
+  # )
+borrow.freq <- ggplot(aes(x=历史成功借款次数), data=borrow.freq.data) + 
+  geom_bar(fill="grey") + 
+  scale_x_discrete(expand = c(0, 0)) + 
+  scale_y_continuous(
+    breaks = seq.int(0, 90000, 10000), expand = c(0, 0.2), limits = c(0, 95000)
+  ) + 
+  labs(title = "历史成功借款次数分布") + 
+  theme_wsj() + 
+  chinese_theme
+
+# borrow money
+borrow.money <- ggplot(aes(x=借款金额), data = df.lc) +
+  geom_density(color="lightblue") + 
+  geom_rug(col="steelblue", alpha=.2) + 
+  labs(title = "借款金额概率密度分布") + 
+  scale_x_continuous(
+    breaks = seq.int(0, 5e05, 2e04), 
+    labels = insert_minor( seq(0, 5e05, 2e04), 104)
+  ) + 
+  theme_wsj() + 
+  chinese_theme
+
+# borrow term
+borrow.term <- ggplot(aes(x=借款期限), data=df.lc) + 
+  geom_bar(fill="grey") + 
+  scale_x_continuous(
+    breaks = seq.int(min(df.lc$借款期限), max(df.lc$借款期限), 1), 
+    expand = c(0, 0)) + scale_y_continuous(expand = c(0, 0.2), limits = c(0, 220000)
+  ) + 
+  labs(title = "借款期限频数统计") + 
+  theme_wsj() + 
+  chinese_theme
+
+# history information
+df.history <- df.lc %>%  
+  filter_all(any_vars(是否首标 != "是")) %>%  
+  select(contains("历史", vars = names(.))) %>% 
+  mutate(
+    历史正常还款期数比率 = case_when(
+      .data$历史正常还款期数 + .data$历史逾期还款期数 == 0 ~ 0,
+      TRUE ~ .data$历史正常还款期数 / (.data$历史逾期还款期数 + .data$历史正常还款期数)
+    ),
+    历史逾期还款期数比率 = case_when(
+      .data$历史正常还款期数 + .data$历史逾期还款期数 == 0 ~ 0,
+      TRUE ~ .data$历史逾期还款期数 / (.data$历史正常还款期数 + .data$历史逾期还款期数)
+    )
+  )
+
+df.history.times <- df.history %>% 
+  select(历史成功借款次数) %>% 
+  transmute(
+    历史成功借款次数 = case_when(
+      历史成功借款次数 > 24 ~ "24+",
+      TRUE ~ as.character(历史成功借款次数)
+    )
+  ) %>% 
+  transmute_all(.funs = factor, levels = c(as.character(seq.int(1, 24, 1)), "24+"))
+
+history.times <- ggplot(aes(x=历史成功借款次数), data = df.history.times) + 
+  geom_bar(fill = "grey") + 
+  geom_text(
+    aes(y=..count.., label = sprintf("%2.1f",..count.. / sum(..count..) * 100), 
+        vjust=-.5), stat = "count", size=3
+  ) + 
+  scale_y_continuous(
+    expand = c(0, 0), breaks = seq(0, 80000, 10000), limits = c(0, 80000)
+  ) + labs(title = "非首标借款次数分布情况", subtitle = "及百分比(%)") + 
+  theme_wsj() + 
+  chinese_theme
+
+history.money <- ggplot(aes(x=历史成功借款金额), data = df.history) + 
+  geom_histogram(bins = 30, fill="grey", color="white") + 
+  scale_x_log10() + 
+  coord_cartesian(expand = FALSE) + labs(title = "非首标交易历史成功借款金额($)") + 
+  theme_wsj() + 
+  chinese_theme
+
+history.payback.ratio <- ggplot(aes(x=历史正常还款期数比率), data = df.history) + 
+  geom_histogram(bins = 30, color = "white", fill = "grey") + 
+  coord_cartesian(expand = FALSE) + 
+  labs(title = "非首标交易历史正常还款期数比率") + 
+  theme_wsj(base_size = 8) + 
+  chinese_theme
+
+history.payback.experi.ratio <- ggplot(aes(x=历史逾期还款期数比率), data = df.history) + 
+    geom_histogram(bins = 30, color = "white", fill = "grey") + 
+    coord_cartesian(expand = FALSE) + 
+    labs(title = "非首标交易历史逾期还款期数比率") + 
+    theme_wsj(base_size = 8) + 
+    chinese_theme
+
+# plot all information
+grid.arrange(
+  age, gender, init.level, cert,  borrow.money, borrow.term, history.times,
+  history.money, history.payback.ratio, history.payback.experi.ratio, 
+  nrow = 2, ncol = 5
+)
 ```
 
 从标的借款人信息中，可以了解到一下信息：
@@ -326,7 +457,10 @@ grid.arrange(age, gender, init.level, cert, nrow = 2, ncol = 2)
 2. 在性别方面，男性的用户数量明显高于女性，占总人数比例的 $\frac{2}{3}$, 达到了 $67.6\%$
 3. 申请贷款时，用户的等级都是在 A 至 F 之间。其中等级 C 和 D 占据了大部分（分别达到了 $40\%$ 左右），也就是说明集中借款的人员等级在中等上
 4. 在申请贷款时，进行了多种认证，包括 _手机认证_, _户口认证_, _视频认证_, _学历认证_, _征信认证_, 以及 _淘宝认证_ 等六种类型认证方式。总体上来看，进行认证的种类上都是偏少的，大多数人是进行一种认证方式或者没有认证
-
+5. 交易中借款的金额分布上，大量用户是进行了小额交易（大量的交易额度都是小于 $4,000$）
+6. 借款期限的选择上，大量的用户是选择了 6 期和 12 期
+7. 交易时，非首标借款次数方面，大量的用户是已经完成首次借款（该类用户占到了 $30.8\%$）很少的用户已经拆过了 10 次以及上的借款。说明大量用户在该平台上交易并不是很频繁
+8. 整体上来看，非首标借款用户在历史交易中正常还款期数占正常还款与逾期还款的比率还是非常高的，发生逾期还款的比例还是非常低。总体来看拍拍贷平台的交易有效性还是非常高的。
 
 # 单变量分析
 
