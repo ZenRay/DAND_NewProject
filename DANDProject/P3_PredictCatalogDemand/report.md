@@ -1,3 +1,7 @@
+
+
+
+
 **目录**
 
 [TOC]
@@ -11,7 +15,7 @@
 3. 数据准备
 4. 分析/建模
 5. 模型评估
-6. 发布
+6. 结果发布
 
 # 2. CRIP_DM 流程
 
@@ -45,4 +49,46 @@
 
 ## 2.3 分析/建模
 
-从客户信息数据 p1_customer.csv 文件中，能够确认有 2,300 名客户信息数据。数据量是足够的，我们要分析的目标变量是一个连续性数据变量。因此我们需要采用**回归**的方法进行分析和建模。
+从客户信息数据 p1_customer.csv 文件中，能够确认有 2,300 名客户信息共计 2,375 条数据。数据量是足够的，我们要分析的目标变量是一个连续性数据变量。因此我们需要采用**回归**的方法进行分析和建模。对需要的数据进行分析：
+
+* State：州信息，分析得出所有商店都是在同一个州（CO），对于建模分析没有意义
+
+* Customer Segment：客户分类，是一个分类变量，包括了 Credit Card、Loyalty Club 及其混合类型，还有一个 Store Mailing List。使用哑变量的方式处理，最终以 Credit Card Only 的类型作为基准变量来建立模型
+
+  ![image-20190204023631693](https://ws4.sinaimg.cn/large/006tNc79gy1fztszljxcvj30f00b4mx6.jpg)
+
+* City：包括了 27 个城市类型，它是一个分类变量。考虑到最终运算量增大，放弃该字段的模型分析
+
+* Store Number：商店数量，是一个离散型数据。分析其与目标变量之间的相关性，可以看出他们之间相关性很弱，不考虑在模型中使用
+
+  ![image-20190204024702445](https://ws4.sinaimg.cn/large/006tNc79gy1fzttagn7pbj30f809jwf5.jpg)
+
+* Avg Num Products Purchased：平均购买产品数量，是一个连续性数值。分析其与目标变量之间的相关性，可以看出两者存在相对强的相关性——计算得出相关性系数在 $0.855754$
+
+  ![image-20190204025209263](https://ws2.sinaimg.cn/large/006tNc79gy1fzttft5z9nj30ek0andgb.jpg)
+
+* `#` Years as Customer：成为客户的年限，这个是一个离散型的数值。分析其余目标变量之间的相关性，两者的相关性非常弱，计算得出相关系数为 $0.029782$
+
+  ![image-20190204030542696](https://ws4.sinaimg.cn/large/006tNc79gy1fztttw78o1j30fq0anq3i.jpg)
+
+经过以上的分析之后，我们最终使用了数值变量 Avg Num Products Purchased 以及分类变量 Customer Segment 作为我们的字段。其中需要对 Customer Segment 进行虚拟变量处理，且以 Credit Card Only 作为基准变量进行分析建模，得到的结果如下：
+
+![image-20190204040939376](https://ws4.sinaimg.cn/large/006tNc79gy1fztvof78w1j30ih0ds3yu.jpg)
+
+即得到了我们需要的模型：
+$$ {align}
+Avg\ Sale\ Amount=303.46 + 66.98 \times Avg\ Num\ Products\ Purchased - \\245.42 \times (If\ Type:Store\ Mailing\ List) + \\281.84 \times (If\ Type:Loyalty\ Club\ and\ Credit\ Card) \\- 149.36 \times (If\ Type:Loyalty\ Club\ Only)
+$$ {align}
+最终模型得到的 R Square 得到的结果是 $0.84​$，决定系数比较高，说明该模型能够对我们现有数据做出较好的解释。此外在各个特征上，P 值都是远远小于 $0.05​$ 的显著性水平要求，说明了各个特征在该模型上具有显著相关性。
+
+## 2.5 模型评估
+
+通过预测数据中的第一条数据，A Giamett 商店名 Avg Num Products Purchased 的数据为 3，Customer Segment 为 Loyalty Club Only，Score_Yes 为 0.305：$(303.46 + 66.98 \times 3 - 245.42 \times 0 + 281.84 \times 0 - 149.36 \times 1)\times0.305 \approx 108.30$
+
+## 2.6 结果发布
+
+经过模型建立及炎症确立后，得到了一个适合的模型。对需要预测的用户数据进行分析，最终得到得了相应的结果如下：
+
+![image-20190204045758093](https://ws2.sinaimg.cn/large/006tNc79gy1fztx2pdst5j30es09fwej.jpg)
+
+从预测的销售结果为 $47,225.91$，计算毛利润并且减去我们制作产品目录册所花费的成本，最终我们能够得到预计的净利润是 $21.987.96$，这是远远超过了我们预期规定的基准利润线一万元。所以最终的**结论**是：支持对这些新用户邮寄产品目录册，这样促进了我们的业务销售。此外具有一个隐形优势能够将产品信息更广泛地推广。
