@@ -77,9 +77,9 @@
 
 即得到了我们需要的模型：
 $$ {align}
-Avg\ Sale\ Amount=303.46 + 66.98 \times Avg\ Num\ Products\ Purchased - \\245.42 \times (If\ Type:Store\ Mailing\ List) + \\281.84 \times (If\ Type:Loyalty\ Club\ and\ Credit\ Card) \\- 149.36 \times (If\ Type:Loyalty\ Club\ Only)
+Avg\ Sale\ Amount=303.46 + 66.98 \times Avg\ Num\ Products\ Purchased - \\245.42(If\ Type:Store\ Mailing\ List) + \\281.84(If\ Type:Loyalty\ Club\ and\ Credit\ Card) \\- 149.36(If\ Type:Loyalty\ Club\ Only)
 $$ {align}
-最终模型得到的 R Square 得到的结果是 $0.84​$，决定系数比较高，说明该模型能够对我们现有数据做出较好的解释。此外在各个特征上，P 值都是远远小于 $0.05​$ 的显著性水平要求，说明了各个特征在该模型上具有显著相关性。
+最终模型得到的 R Square 得到的结果是 $0.84$，决定系数比较高，说明该模型能够对我们现有数据做出较好的解释。此外在各个特征上，P 值都是远远小于 $0.05$ 的显著性水平要求，说明了各个特征在该模型上具有显著相关性。
 
 ## 2.5 模型评估
 
