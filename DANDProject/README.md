@@ -113,3 +113,116 @@
 
 - 数据1
 - 数据2
+
+# 4. [基于零售数据挖掘业务特征](./P4_CreateReportFromDatabase)
+
+**业务场景**
+
+这里有一家经营各种食品批发的批发商，而是你是这家批发商的商业智能分析师。你负责将分析仪表板放在一起进行管理。他们要求你专注于其业务的一个维度，并创建一个仪表板，提供与该维度相关的各种汇总统计信息。
+
+选择下面的一个维度，然后使用可视化创建一个演示文稿，该演示文稿需要提供有关该维度的高级摘要信息。
+
+- 客户
+- 供应商
+- 产品
+- 雇员
+
+下面是帮助你进行分析的几个问题：
+
+- 我的客户分布在哪里？
+- 哪些公司在供应我销售的大部分产品？
+- 表现最好的员工是谁？
+- 哪些产品的销售额在增长？
+
+**数据库**
+
+你将使用的是一个名为 Northwind.sqlite3 的数据库。但是，如果你使用的是 DB Browser for SQLite，请按照如下步骤操作：
+
+- 点击界面上方的 open database。
+- 找到并打开 Northwind.sqlite3 数据库文件。
+- 花一些时间来浏览并看懂这些数据。
+
+**其他说明**
+
+- 查询输出和可视化之间不应有任何额外的数据准备（排序、过滤、重命名等）。
+
+- 你的所有四个查询都必须包含连接与聚合。
+
+- 至少应有一个查询包含子查询。
+
+- 根据[项目审阅标准](https://review.udacity.com/#!/rubrics/2009/view)检查你的项目是否符合要求。审阅专家将按照审阅标准来评估你交付的项目。
+
+- 完成项目后，将 PDF 格式的演示文稿与 txt 格式的查询文件打包到一个压缩文件夹中，然后进行提交。
+
+- [SQLite (用于此项目) 与 Postgres中的Date函数不同 (用于课堂)](https://sqlite.org/lang_datefunc.html)
+
+  在这个项目中，你使用的语法与课堂上的SQL语法略有不同。虽然大多数命令和逻辑都是一样的，但SQLite（用于此项目）和PostgreSQL（用于课堂）之间存在一些差异。具体而言，这些差异可能会影响到Date函数的表示。
+
+  Postgres SQL DATE_TRUNC
+
+  ```
+  SELECT DATE_TRUNC('month', o.occurred_at) ord_date
+  FROM orders o 
+  ```
+
+  这个查询命令只会返回查询结果中日期字段的年份和月份数据
+
+  SQLite 中的 DATE_TRUNC 是 STRFTIME
+
+  ```
+  SELECT STRFTIME('%Y-%m', o.occurred_at) ord_date
+  FROM orders o
+  ```
+
+  这个查询命令只会返回查询结果中日期字段的年份和月份数据。在SQLite中，我们必须更精确地描述日期格式，因为它会返回指定的所有信息。因此，我们需要通过将最终表中所需日期的部分放在单引号中来指定查询结果。
+
+  对于此查询，我们想要的只是年份和月份。其中，%Y代表年份，%m代表月份。以下是完整列表。
+
+  %d - day of month: 00
+
+  %f - fractional seconds: SS.SSS
+
+  %H - hour: 00-24
+
+  %j - day of year: 001-366
+
+  %J - Julian day number
+
+  %m - month: 01-12
+
+  %M - minute: 00-59
+
+  %s - seconds since 1970-01-01
+
+  %S - seconds: 00-59
+
+  %w - day of week 0-6 with Sunday==0
+
+  %W - week of year: 00-53
+
+  %Y - year: 0000-9999
+
+  Postgres SQL DATE_PART
+
+  ```
+  SELECT DATE_PART('month', occurred_at) ord_year
+  FROM orders
+  ```
+
+  这个查询命令只会返回查询结果中日期字段的月份数据
+
+  SQLite version of DATE_PART is STRFTIME
+
+  ```
+  SELECT STRFTIME('%m', o.occurred_at) ord_date
+  FROM orders o 
+  ```
+
+  由于我们只想拉出月份数据，因此可以指定在 SQLite 中使用相同的 STRFTIME 函数，我们只需使用 %+字母 来指定我们想要的那部分数据。所以，在这里我们必须使用'%m '而不是'month'。
+
+  以下是一些有用的链接，可以帮助你在 SQLite 中处理日期数据：
+
+  - <https://www.techonthenet.com/sqlite/functions/strftime.php>
+  - <https://sqlite.org/lang_datefunc.html>
+
+  可能你在将来会使用其他 SQL 环境，如 Microsoft SQL Server，Oracle，MySQL 或任何其他 SQL 环境，也可能会再次出现细微的差异。但只要掌握了现在的技能，尝试一下 Google 搜索吧，它会帮助你快速了解你要使用的任何一个环境。
