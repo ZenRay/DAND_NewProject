@@ -4,64 +4,38 @@
 
 **说明：** 本次主题是讲一个故事，说明当面临大型海难的时候，**“您”应该选择成为什么样的乘客才能在危难中存活下来**。详情链接[Tatanic| Tableau Public](https://public.tableau.com/profile/ray5013#!/vizhome/Tatanic/Titanic_Fix)
 
-# 数据集探索
+# 总结
 
-数据集中包括了 891 名乘客信息，包括 `PassengerId`, `Survived`, `Pclass`, `Name`, `Sex`, `Age`, `SibSp`, `Parch`, `Ticket`, `Fare`, `Cabin`, `Embarked` 等信息，相关具体信息如下：
+该数据集是一个海难事故数据集，分析将从海难方向进行分析。最终得出了三个主要的结论：
 
-| **Variable** | **Definition**                             | **Key**                                        |
-| ------------ | ------------------------------------------ | ---------------------------------------------- |
-| survival     | Survival                                   | 0 = No, 1 = Yes                                |
-| pclass       | Ticket class                               | 1 = 1st, 2 = 2nd, 3 = 3rd                      |
-| sex          | Sex                                        |                                                |
-| Age          | Age in years                               |                                                |
-| sibsp        | # of siblings / spouses aboard the Titanic |                                                |
-| parch        | # of parents / children aboard the Titanic |                                                |
-| ticket       | Ticket number                              |                                                |
-| fare         | Passenger fare                             |                                                |
-| cabin        | Cabin number                               |                                                |
-| embarked     | Port of Embarkation                        | C = Cherbourg, Q = Queenstown, S = Southampton |
+1. 在票价的影响方面，高票价的中年男性完全幸存；而在三等舱中仅有低龄低价乘客幸存比例较高，推测是因为随父母或者其他亲人出行的，这点在亲人的角度比较明显。**比较意外的是在低龄的有同辈情况下反而会出现死亡的可能行**
+2. 有长辈出行的情况下，高龄旅客容易牺牲，而低龄乘客更容易幸存下来
+3. 各个舱级中，第三级的男性人数远大于女性。在海难中，同样年龄条件下 15～49 岁之间的三等舱和二等舱男性牺牲人数最多；同样年龄条件下，三等舱的 15～49 岁之间女性牺牲人数最多
+4. 最终结果来看，“您”是一名**一等舱的年轻女性**更容易存活
 
-* 备注信息：
+# 设计
 
-  * **pclass**: A proxy for socio-economic status (SES)
-    1st = Upper
-    2nd = Middle
-    3rd = Lower
-  * **age**: Age is fractional if less than 1. If the age is estimated, is it in the form of xx.5
-  * **sibsp**: The dataset defines family relations in this way...
-    Sibling = brother, sister, stepbrother, stepsister
-    Spouse = husband, wife (mistresses and fiancés were ignored)
-  * **parch**: The dataset defines family relations in this way...
-    Parent = mother, father
-    Child = daughter, son, stepdaughter, stepson
-    Some children travelled only with a nanny, therefore parch=0 for them.
+探索该数据的角度之后，提出以研究海难发生过程中幸存条件进行分析主题。分点分析：
 
-## 用户信息
-
-1. 乘客年龄 主要的乘客年龄在 15～35 岁之间
-2. 乘客性别 大量成为为男性 577 人，而女性为314 人
-3. 亲属关系 大部分乘客都没有父母或者兄弟姐妹以及配偶关系
-4. 登陆地点 包括了三个国家的地点，分别是英国、新西兰和法国。其中英国占据了最大的旅客量，且第三等级的客户的数量最多；其次是法国登陆旅客量，且在此地登陆的游客中第一等级的客户数量最多
-
-## 其他信息
-
-1. 旅客购票 在同一个地区的购买的票差存在较大的价格差异。在英国的 Southampton 表现出明显的差异，第二等级和第三等级的旅客购票价格已经能够登上一等舱的价格
-
-# 海难中的生存能力
-
-1. 各个舱级中，第三级的男性人数远大于女性。在海难中，15～49 岁之间的三等舱和二等舱男性牺牲人数最多；三等舱的 15～49 岁之间女性牺牲人数最多
-2. 在票价的影响方面，高票价的中年男性完全幸存；而在三等舱中仅有低龄低价乘客幸存比例较高，推测是因为随父母或者其他亲人出行的，这点在亲人的角度比较明显。**比较意外的是在低龄的有同辈情况下反而会出现死亡的可能行**
-3. 有长辈出行的情况下，高龄旅客容易牺牲，而低龄乘客更容易幸存下来
-
-# 结论
-
-在面对海难过程中，三等舱的青年男性更容牺牲；而**一等舱的青年女性**更容幸存下来。其他类别上来看幸存与否差别不是太大
+1. 分别调查旅客状态，包括登录地点、舱位等级、性别等的分布情况，了解到旅客的整体信息。
+   * 在设计上先以地图信息来表现舱位等级人数以及登船地点，来吸引用户查看船只停靠站点，登录乘客
+   * 为了表现旅客的基本信息，而这些信息仅仅是静态表现所以考虑把主要用的整体表现数据放到一张 Dashboard 中
+   * 因为曾经个人用 Python 分析中发现了性别和舱位等级上具有较大的影响，所以对这两个特征进行了分析。首先简单分析舱位等级及性别的统计数量，使用气泡图来表现——性别用颜色表示，大小用统计数量表示。为了开始后续分析后面的幸存与否，所以添加了幸存与否做颜色，使用年龄等级（处理了年龄数据）来进行分箱统计数量表示气泡大小
+2. 之后从票价和年龄作为散点图分析，主要以幸存与否作为分类，另外添加旅客的亲人数量等级、同辈数量等级等来探讨对幸存与否的影响
+   * 考虑到票价和年龄是仅有的连续数据，为了表现出各个用户的幸存及其他维度信息。使用这两个特征来构建基本的散点图信息，性别差异（使用形状参数来调整，可以用男女性形状来表现）以及幸存与否（用颜色来突出表现是否幸存）作为基本的分析架构
+   * 接下来将亲人数量登记和同辈数量等级作为其他需要分析的因素来探讨，主要的表现方式是以大小来表现等级差异
+3. 利用前面的分析构建一个马赛克图，确认各个因素在旅客幸存与否上的数量统计
 
 # 反馈
 
-总体上反馈比较正面，根据意见修改了上方提示信息给出了相关的结论信息。最后结论上，这里没有根据反馈说特征太多和颜色问题，颜色是为了突出我们需要的信息——所以增加了颜色的 interval，这里为了保持前期探索的信息进行深入分析所以保持了特征数量
+第一版：[Tatanic  | Tableau Public](https://public.tableau.com/profile/ray5013#!/vizhome/Tatanic/Titanic?publish=yes) 
 
-# 参考
+第一版反馈：
+
+* 上方提示信息给出了相关的结论信息，上方方格中存放给出相应的简短结论。进行了修改
+* 马赛克图颜色不突出，分隔太多。没有修改，原因是颜色是为了突出我们需要的信息——所以增加了颜色的 interval，这里为了保持前期探索的信息进行深入分析所以保持了特征数量
+
+# 资源
 
 1. [生成饼图 - Tableau](https://onlinehelp.tableau.com/current/pro/desktop/zh-cn/buildexamples_pie.htm) 
 
