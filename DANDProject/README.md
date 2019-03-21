@@ -293,3 +293,102 @@
 **第七步 - 回顾**
 
 使用[项目 Rubric](https://review.udacity.com/#!/rubrics/948/view) 回顾你的项目。如果你觉得满意，则可以提交项目了。如果你发现还有改进的空间，则继续努力改进项目！
+
+# 11. [为慈善机构寻找捐献者](./P11_SupervisedLearning)
+
+**监督学习**
+
+**项目概述**
+
+在此项目中，你将运用监督学习的技巧对美国人口普查数据进行分析，帮助 CharityML（一家虚拟的慈善机构）发现最有可能向他们捐款的人士。你首先将探索这些人口普查数据，了解数据的记录结构。接着，你将应用一系列的转换和预处理技巧操纵数据，使其变成可处理的格式。然后，你将自己选择几个监督学习器并将它们应用到数据上，看看哪个学习器最能满足需求。之后，你将优化所选的模型并当做解决方案呈现给 CharityML。最后，你将探索所选的模型和背后的预测原理，看看它在处理给定的数据时，效果如何。
+
+**环境安装**
+
+这个项目需要安装下面这些python包：
+
+- [NumPy](http://www.numpy.org/)
+- [Pandas](http://pandas.pydata.org/)
+- [scikit-learn](http://scikit-learn.org/stable/)
+- [matplotlib](http://matplotlib.org/)
+
+你同样需要安装好相应软件使之能够运行 [iPython Notebook](http://ipython.org/notebook.html)
+
+**代码**
+
+初始代码包含在`finding_donors.ipynb`这个notebook文件中。你还会用到`visuals.py`和名为`census.csv`的数据文件来完成这个项目。我们已经为你提供了一部分代码，但还有些功能需要你来实现才能以完成这个项目。
+这里面有一些代码已经实现好来帮助你开始项目，但是为了完成项目，你还需要实现附加的功能。  
+注意包含在`visuals.py`中的代码设计成一个外部导入的功能，而不是打算学生去修改。如果你对notebook中创建的可视化感兴趣，你也可以去查看这些代码。
+
+**运行**
+
+在命令行中，确保当前目录为 `finding_donors/` 文件夹的最顶层（目录包含本 README 文件），运行下列命令：
+
+```bash
+jupyter notebook finding_donors.ipynb
+```
+
+这会启动 Jupyter Notebook 并把项目文件打开在你的浏览器中。
+
+**数据**
+
+修改的人口普查数据集含有将近32,000个数据点，每一个数据点含有13个特征。这个数据集是Ron Kohavi的论文*"Scaling Up the Accuracy of Naive-Bayes Classifiers: a Decision-Tree Hybrid",*中数据集的一个修改版本。你能够在[这里](https://www.aaai.org/Papers/KDD/1996/KDD96-033.pdf)找到论文，在[UCI的网站](https://archive.ics.uci.edu/ml/datasets/Census+Income)找到原始数据集。
+
+**特征**
+
+- `age`: 一个整数，表示被调查者的年龄。 
+- `workclass`: 一个类别变量表示被调查者的通常劳动类型，允许的值有 {Private, Self-emp-not-inc, Self-emp-inc, Federal-gov, Local-gov, State-gov, Without-pay, Never-worked}
+- `education_level`: 一个类别变量表示教育程度，允许的值有 {Bachelors, Some-college, 11th, HS-grad, Prof-school, Assoc-acdm, Assoc-voc, 9th, 7th-8th, 12th, Masters, 1st-4th, 10th, Doctorate, 5th-6th, Preschool}
+- `education-num`: 一个整数表示在学校学习了多少年 
+- `marital-status`: 一个类别变量，允许的值有 {Married-civ-spouse, Divorced, Never-married, Separated, Widowed, Married-spouse-absent, Married-AF-spouse} 
+- `occupation`: 一个类别变量表示一般的职业领域，允许的值有 {Tech-support, Craft-repair, Other-service, Sales, Exec-managerial, Prof-specialty, Handlers-cleaners, Machine-op-inspct, Adm-clerical, Farming-fishing, Transport-moving, Priv-house-serv, Protective-serv, Armed-Forces}
+- `relationship`: 一个类别变量表示家庭情况，允许的值有 {Wife, Own-child, Husband, Not-in-family, Other-relative, Unmarried}
+- `race`: 一个类别变量表示人种，允许的值有 {White, Asian-Pac-Islander, Amer-Indian-Eskimo, Other, Black} 
+- `sex`: 一个类别变量表示性别，允许的值有 {Female, Male} 
+- `capital-gain`: 连续值。 
+- `capital-loss`: 连续值。 
+- `hours-per-week`: 连续值。 
+- `native-country`: 一个类别变量表示原始的国家，允许的值有 {United-States, Cambodia, England, Puerto-Rico, Canada, Germany, Outlying-US(Guam-USVI-etc), India, Japan, Greece, South, China, Cuba, Iran, Honduras, Philippines, Italy, Poland, Jamaica, Vietnam, Mexico, Portugal, Ireland, France, Dominican-Republic, Laos, Ecuador, Taiwan, Haiti, Columbia, Hungary, Guatemala, Nicaragua, Scotland, Thailand, Yugoslavia, El-Salvador, Trinadad&Tobago, Peru, Hong, Holand-Netherlands}
+
+**目标变量**
+
+- `income`: 一个类别变量，表示收入属于那个类别，允许的值有 {<=50K, >50K}
+
+# 12. [创建客户细分](./P12_UnsupervisedLearning)
+
+**项目概述**
+
+在此项目中，你将对为葡萄牙里斯本的批发商收集的客户产品开支数据应用非监督学习技巧，以便发现数据中隐藏的客户细分信息。首先，你将探索数据：选择一小部分样本子集并判断产品类别之间是否相互关系紧密。之后，你将通过缩放每个产品类别预处理数据，然后发现（并删除）不需要的离群值。留下良好的客户开支数据后，你将对数据应用 PCA 转换，并实施聚类算法，以便划分转换后的客户数据。最后，你将比较细分结果与额外的标签信息，并思考这些信息可以帮助批发商日后改进服务的方式。
+
+**项目要点**
+
+此项目旨在让你有机会亲身体验非监督学习，并帮助潜在客户针对现实中的数据集得出结论。如今，有很多公司都会收集大量客户数据，并且非常渴望了解隐藏在客户群体中的关联。了解这些信息后，公司能够探索规划产品和服务的最佳方式，以满足客户需求。
+
+完成此项目后，你将学到以下技能：
+
+- 如何应用预处理技巧，例如特征缩放和离群值检测。
+- 如何解释缩放、转换或通过 PCA 推理的数据点。
+- 如何分析 PCA 维度并构建新的特征空间。
+- 如何对一组数据进行最佳聚类操作，找到数据集中的隐藏规律。
+- 如何评估聚类数据提供的信息并有效利用该信息。
+
+**项目说明**
+
+某个批发商最近针对某些客户进行了送货方式试点更改，从一周五天上午送货服务变成了成本更低的一周三天晚上送货服务。初始测试并没有发现任何明显不理想的结果，因此他们针对所有客户都采取了成本更低的送货方式。但是很快，批发商就收到客户关于送货服务变化的投诉，有客户取消了送货服务，导致批发商损失的金额比节省的更高。批发商聘请你来帮助他们了解他们的客户类型，以便日后做出更好、更明智的商业决策。你的任务是使用非监督式学习技巧判断客户之间是否有相似之处，以及如何以最佳方式将客户细分成明显的类别。
+
+**软件和库**
+
+此项目使用以下软件和 Python 库：
+
+- [Python](https://www.python.org/downloads/release/python-364/)
+- [NumPy](http://www.numpy.org/)
+- [pandas](http://pandas.pydata.org/)
+- [scikit-learn](http://scikit-learn.org/0.17/install.html) (v0.17)
+- [matplotlib](http://matplotlib.org/)
+
+你还需要安装软件，才能运行并执行 [Jupyter Notebook](http://ipython.org/notebook.html)。
+
+此项目包含三个文件：
+
+- `customer_segments.ipynb`：这是主要文件，你将在此文件中执行项目任务。
+- `customers.csv`：项目数据集。你将在 notebook 中加载此数据。
+- `visuals.py`：此 Python 脚本提供了项目的补充可视化内容。请勿修改此文件。
