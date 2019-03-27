@@ -392,3 +392,64 @@ jupyter notebook finding_donors.ipynb
 - `customer_segments.ipynb`：这是主要文件，你将在此文件中执行项目任务。
 - `customers.csv`：项目数据集。你将在 notebook 中加载此数据。
 - `visuals.py`：此 Python 脚本提供了项目的补充可视化内容。请勿修改此文件。
+
+# 13. [第一个神经网络](./P13_NeuralNetwork)
+
+**介绍**
+
+在这一项目中，你将会从头开始构建一个神经网络，基于真实的数据集来进行预测！通过从零开始搭建神经网络，你将更好地理解梯度下降、反向传播等概念。这些都是我们以后接触更高级工具（如 Tensorflow）前必须掌握的重要概念。在这一项目中，你也将看到，如何运用这些网络来完成实际生活中的预测问题！
+
+数据来自 [UCI 机器学习数据库](https://archive.ics.uci.edu/ml/datasets/Bike+Sharing+Dataset)。
+
+**说明**
+
+1. 从我们的 [GitHub 代码库](https://github.com/udacity/cn-deep-learning)下载项目相关资料。
+
+2. 进入 `first-neural-network` 文件夹。
+
+3. 下载 anaconda 或 miniconda，你可以参考我们的 Anaconda 课程。
+
+4. 创建一个新的 conda 环境：
+
+   ```bash
+   conda create --name dlnd python=3
+   ```
+
+5. 进入新环境：
+
+   - Mac/Linux 系统：`>> source activate dlnd`
+   - Windows 系统：`>> activate dlnd`
+
+6. 输入以下命令，检查你是否已经安装了 numpy ，matplotlib， pandas ，和 jupyter notebook：
+
+   ```bash
+   conda install numpy matplotlib pandas jupyter notebook
+   ```
+
+7. 运行以下命令，打开 notebook ：
+
+   ```bash
+   jupyter notebook Your-first-neural-network.ipynb
+   ```
+
+8. 请按照 notebook 上的引导说明来完成本项目。
+
+9. 在提交项目之前，请确保你已经通过了 notebook 上的单元测试！
+
+如果在运行 notebook 文件过程中，你需要帮助，请查看我们的 Jupyter notebook 课程。
+
+**反馈**
+
+你大约会在 7 天内得到优达学城审阅者的批阅反馈。
+
+1. 检查你是否已经通过了 notebook 中的所有单元测试。
+2. 确保你符合[评审标准](https://review.udacity.com/#!/rubrics/932/view)里的所有条目。
+3. 当你完成项目后，请将 notebook 保存为一个 HTML 文件以及一个 Python 文件。你可以进入 notebook 的菜单，选择“Download as”> HTML (.html) 来保存 HTML 文件；选择“Download as”> Python (.py) 来保存 Python 文件。**确保你同时提交 Jupyter Notebook 以及 HTML 和 Python 这三个版本的文件。**
+4. 将 notebook 以及 HTML ，Python 文件压缩成一个 zip 文件，或者将 notebook 和 HTML 以及 Python 文件推送到 GitHub repo 上。
+5. 点击下面的“提交项目”按钮！
+
+**提醒：如果你选择上传文档，你需要用英文命名文档，文件名中若有中文字符，会导致提交失败。**
+
+**接下来做什么？**
+
+如果你现在在等待新的课程内容，或者等待评审结果，这里有一个[很棒的来自 Frank Chen 的视频](https://s3.cn-north-1.amazonaws.com.cn/static-documents/nd101/AI%2C+Deep+Learning%2C+and+Machine+Learning_+A+Primer.mp4)，介绍深度学习的历史。视频时长45分钟，有点像一部短纪录片，它从20世纪50年代开始讲起，直到带我们进入当下的深度学习和人工智能热潮。
