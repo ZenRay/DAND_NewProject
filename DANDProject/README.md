@@ -453,3 +453,40 @@ jupyter notebook finding_donors.ipynb
 **接下来做什么？**
 
 如果你现在在等待新的课程内容，或者等待评审结果，这里有一个[很棒的来自 Frank Chen 的视频](https://s3.cn-north-1.amazonaws.com.cn/static-documents/nd101/AI%2C+Deep+Learning%2C+and+Machine+Learning_+A+Primer.mp4)，介绍深度学习的历史。视频时长45分钟，有点像一部短纪录片，它从20世纪50年代开始讲起，直到带我们进入当下的深度学习和人工智能热潮。
+
+# 14. [波士顿房价预测](./P14_BostonHousing)
+
+
+
+# 15. [词性标注](./P15_HidenMarkovModels)
+
+**简介**
+
+在此 notebook 中，你将使用 [Pomegranate](https://github.com/jmschrei/pomegranate) 库构建隐马尔可夫模型，并使用[通用标签集](http://www.petrovi.de/data/universal.pdf)进行词性标注。在使用更大型的标签集对实际文本语料库进行标注时，隐马尔可夫模型的准确率达到了 96% 以上。隐马尔可夫模型还用于语音识别和语音生成、机器翻译、生物信息学基因识别和计算机视觉人类手势识别，等等。
+
+该 notebook 已经包含一些帮助你着手编程的代码。要完成此项目，你只需在有标记的地方添加一些新的功能；除此之外，不需要修改所提供的代码。标题中以**'实现'**开头的部分表明你必须在下面的代码块中提供代码。我们会在每个部分提供说明，并在以 `'TODO'` 语句开头的代码块中提供实现细节。请务必仔细阅读说明！
+
+**注意：**这是一道可选热身练习，旨在介绍项目文件中包含的 Pomegranate API。请先启动 `HMM warmup (optional).ipynb` 文件以转到此练习，然后完成 `hmm tagger.ipynb` notebook。（只需提交标签器以供审阅）。
+
+**使用入门**
+
+你可以选择两种方式之一来完成此项目。第一种方法是使用在下节课的课堂中嵌入的 Workspace。该 Workspace 已经过配置，包含完成此项目所需的所有必要项目文件。只需打开该课程，完成在 Jupyter notebook 中标明的部分，然后点击“提交项目”按钮即可。
+
+**注意：**如果在启动 notebook 时，系统提示你选择一个内核，请选择 **Python 3** 内核。
+
+此外，你可以下载项目资料副本，然后在本地机器上运行 Jupyter 服务器。请在下面为你的课程选择相应的链接，然后按照 readme 中的说明设置并完成项目。
+
+**注意：**如果你使用的是项目 Workspace，则**不**需要完成这些步骤。
+
+- AIND GitHub：[此处](https://github.com/udacity/artificial-intelligence) (Projects/4_HMM Tagger)
+- NLPND GitHub：[此处](https://github.com/udacity/hmm-tagger)
+
+**评估**
+
+优达学城的审阅专家将根据[此](https://review.udacity.com/#!/rubrics/2263/view)审阅标准审阅你的项目。请仔细阅读此审阅标准，并在提交项目前先自己评估下项目。必须满足审阅标准中的所有规范，项目才能通过评估。
+
+**提交**
+
+实现所有代码后，最后需要将 iPython Notebook 导出为 HTML 文档。在将 notebook 导出为 HTML 前，请运行所有代码单元格，以便审阅专家能够查看最终实现和输出结果。然后导出 notebook，方法是：运行 notebook 中的最后一个单元格，或使用顶部的菜单并依次转到“文件”->“下载为” -> HTML (.html)。提交内容应该同时包含 HTML 和 ipynb 文件。
+
+请压缩“hmm tagger.ipynb”和“hmm tagger.html”文件，并通过以下按钮提交压缩文件。（**注意：**如果你是在 workspace 中完成的项目，可以使用 workspace 中的“提交”按钮直接提交项目。）
